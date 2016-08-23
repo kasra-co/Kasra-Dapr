@@ -1,0 +1,6 @@
+node_modules
+*.log
+.eslintrc
+coverage
+file.csv
+kasra-website-470347a1608a.json
