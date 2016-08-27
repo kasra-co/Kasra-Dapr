@@ -9,6 +9,9 @@ import googleAnalyticData from "../kasra-website-ga.json";
 import { mapSeries, waterfall, mapLimit } from "async";
 import requestPage from "../config/paged";
 import sendMail from "../config/sendmail";
+import CtrModel from "../model";
+import mongoose from "mongoose";
+import mongoConnectionString from "../util/mongo-connection-string";
 
 const GA_VIEW_ID = process.env.GA_VIEW_ID;
 
@@ -30,6 +33,7 @@ const gt = m.format();
 const lt = moment().subtract(6, "d").hour(0).minutes(59).seconds(59).milliseconds(0).toISOString();
 console.log(gt, lt);
 export default function() {
+  mongoose.connect(mongoConnectionString);
   axios.get("https://kasra.co/api/v2/articles", {
     params: {
       operations: {
@@ -119,8 +123,11 @@ function pullStunts(articleData) {
       //GET FACEBOOK SHARES COUNT
       mapSeries(articleData, function(result, cb) {
         request({
-            url: `http://graph.facebook.com/?id=https://kasra.co/${encodeURIComponent(result.slug)}`,
+            url: `https://graph.facebook.com/v2.7/?id=https://kasra.co/${encodeURIComponent(result.slug)}`,
             json: true,
+            qs: {
+              access_token: process.env.ADS_INSIGHT_TOKEN
+            },
             maxAttempts: 5,
             retryDelay: 1800, // (default) wait for 30mins before trying again
             retryStrategy: request.RetryStrategies.HTTPOrNetworkError, // (default) retry on 5xx or network errors
@@ -135,7 +142,10 @@ function pullStunts(articleData) {
             cb(null, result);
           });
       }, function(err, result) {
-        console.log("Done getting likes for articles");
+        console.log("Done getting shares for articles");
+        if (err) {
+          console.log("error getting shares for articles", err);
+        }
         callback(null, result);
       });
     },
@@ -162,6 +172,9 @@ function pullStunts(articleData) {
             cb(null, populate)
           });
         }, function(err, result) {
+          if (err) {
+            console.log(err, "error getting data from GA");
+          }
           console.log("Data done for GA");
           callback(null, fbsharesResult);
         });
@@ -183,13 +196,22 @@ function pullStunts(articleData) {
                   "access_token": process.env.ADS_INSIGHT_TOKEN
                 }
               }).then(adResponse => {
+                try {
+                  let ctr = new CtrModel();
+                  ctr.title = result.title;
+                  ctr.slug = result.slug;
+                  ctr.inlineCtr = get(adResponse, "data.data[0]");
+                  ctr.save();
+                } catch (error) {
+                  console.error(error, "seding to db");
+                }
                 const populate = Object.assign(result, get(adResponse, "data.data[0]"));
                 cb(null, populate);
               }).catch(error => {
                 cb(null, error);
               })
             } else {
-              const populate = Object.assign(result, {inline_link_click_ctr: 0});
+              const populate = Object.assign(result, { inline_link_click_ctr: 0 });
               cb(null, populate);
             }
           });

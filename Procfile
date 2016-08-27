@@ -1,1 +1,1 @@
-worker: node cron
+worker: node worker

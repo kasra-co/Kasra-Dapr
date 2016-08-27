@@ -21,7 +21,6 @@ function startMaster() {
 }
 
 function startWorker() {
-
   const app = App();
   const port = process.env.PORT || 6500;
   app.listen(port);
