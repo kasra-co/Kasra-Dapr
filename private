@@ -2,6 +2,10 @@
     NODE_ENV="development"\
     DEBUG_LABELS="true"\
     DEBUG="koa-mount"\
+    SENDGRID_PASSWORD="2xbr0uev6679"\
+    SENDGRID_USERNAME="app55647017@heroku.com"\
+    GA_VIEW_ID="ga:86077163"\
+    ADS_INSIGHT_TOKEN="EAAXv5velVp0BAM7o5xuMpu8RSlNPYN6mFhaJHuZANVpHHlmAwUjdxfBAiGS0zeY3MDknvvdE5HCkpZAICfZBsDAJWYS0BIvqTP1ZA9hvIXS0fKRx92H45E1ZCfVysmvk4J3tZBjI2wxawfYWteYmejKzl1ymCudw4ZD"\
     "$@"
 # ./private npm run watch
 # ./private npm run dev
