@@ -30,7 +30,7 @@ const m = moment().utcOffset(3);
 m.subtract(7, "d").set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
 m.toISOString();
 const gt = m.format();
-const lt = moment().subtract(6, "d").hour(23).minutes(59).seconds(59).milliseconds(0).toISOString();
+const lt = moment().utcOffset(0).subtract(6, "d").hour(23).minutes(59).seconds(59).milliseconds(0).toISOString();
 console.log(gt, lt);
 export default function() {
   mongoose.connect(mongoConnectionString);
@@ -47,7 +47,7 @@ export default function() {
     }
   }).then(res => {
     console.log(res.data.length);
-    pullStunts(res.data);
+    // pullStunts(res.data);
   }).catch(error => {
     console.log(error, "error");
   });
