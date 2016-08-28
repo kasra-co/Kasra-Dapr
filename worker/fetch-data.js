@@ -34,7 +34,7 @@ const ltfmt = moment().utcOffset(3);
 ltfmt.subtract(7, "d").set({hour: 23, minute: 59, second: 59, millisecond:0 });
 ltfmt.toISOString();
 const lt = ltfmt.format();
-console.log(gt, lt);
+console.log(gt, lt, moment(gt).utcOffset(3).format("YYYY-MM-DD"));
 export default function() {
   mongoose.connect(mongoConnectionString);
   axios.get("https://kasra.co/api/v2/articles", {
@@ -136,7 +136,7 @@ function pullStunts(articleData) {
             retryStrategy: request.RetryStrategies.HTTPOrNetworkError, // (default) retry on 5xx or network errors
           })
           .then(function(response) {
-            result.absUrl = "https://kasra.co/" + result.slug;
+            result.absUrl = "https://kasra.co/" + result.shortUrl;
             result.publishYear = moment(result.publishDate).format("YYYY-MM-DD");
             result.publishTZone = "AST";
             result.publishTime = moment(result.publishDate).utcOffset(0).format("HH:mm");
@@ -233,7 +233,7 @@ function pullStunts(articleData) {
       return 0;
     });
     const csvConvert = json2csv({ data: result, fields: fields, fieldNames: fieldNames });
-    const date = moment(gt).format("YYYY-MM-DD");
+    const date = moment(gt).utcOffset(3).format("YYYY-MM-DD");
     fs.writeFile(`DAPR_${date}.csv`, csvConvert, function(err) {
       if (err) throw err;
       console.log("file saved");
