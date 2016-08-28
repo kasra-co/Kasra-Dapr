@@ -7,6 +7,7 @@ const FacebookCtr = new Schema({
   title: { type: String, index: true },
   inlineCtr: Object.assign({}, {
     inline_link_click_ctr: Schema.Types.Mixed,
+    ad_id: String
   })
 });
 

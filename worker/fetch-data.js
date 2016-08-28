@@ -9,7 +9,8 @@ import googleAnalyticData from "../kasra-website-ga.json";
 import { mapSeries, waterfall, mapLimit } from "async";
 import requestPage from "../config/paged";
 import sendMail from "../config/sendmail";
-import CtrModel from "../model";
+import CtrModel from "../model/ctr";
+import DaprModel from "../model/dapr";
 import mongoose from "mongoose";
 import mongoConnectionString from "../util/mongo-connection-string";
 
@@ -19,11 +20,11 @@ const GA_VIEW_ID = process.env.GA_VIEW_ID;
 const fields = ["count", "absUrl", "title",
   "author.displayName", "publishYear",
   "publishTime", "publishTZone", "mood", "share.share_count",
-  "ga:pageviews", "inline_link_click_ctr"
+  "ga:pageviews", "inline_link_click_ctr", "adId"
 ];
 const fieldNames = ["#", "Url", "Title", "Author",
   "Published Date", "Published Time", "TimeZone",
-  "Emotions", "FB Shares", "Total Page Views", "FB CTR"
+  "Emotions", "FB Shares", "Total Page Views", "FB CTR", "FB Ad ID"
 ];
 
 const m = moment().utcOffset(3);
@@ -31,7 +32,7 @@ m.subtract(7, "d").set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
 m.toISOString();
 const gt = m.format();
 const ltfmt = moment().utcOffset(3);
-ltfmt.subtract(7, "d").set({hour: 23, minute: 59, second: 59, millisecond:0 });
+ltfmt.subtract(7, "d").set({ hour: 23, minute: 59, second: 59, millisecond: 0 });
 ltfmt.toISOString();
 const lt = ltfmt.format();
 console.log(gt, lt, moment().format());
@@ -172,7 +173,7 @@ function pullStunts(articleData) {
         yield mapSeries(articleData, function(result, cb) {
           queryData(analytics, result, function(gaResponse) {
             const populate = Object.assign(result, get(gaResponse, "totalsForAllResults"));
-            cb(null, populate)
+            cb(null, populate);
           });
         }, function(err, result) {
           if (err) {
@@ -201,14 +202,20 @@ function pullStunts(articleData) {
               }).then(adResponse => {
                 try {
                   let ctr = new CtrModel();
+                  let dapr = new DaprModel(result);
                   ctr.title = result.title;
                   ctr.slug = result.slug;
-                  ctr.inlineCtr = get(adResponse, "data.data[0]");
+                  ctr.inlineCtr = Object.assign(get(adResponse, "data.data[0]"), { ad_id: response.id });
                   ctr.save();
+                  dapr.author = result.author.displayName;
+                  dapr.fbShares = result.share.share_count;
+                  dapr.gaViews = result["ga:pageviews"];
+                  dapr.inlineCtr = get(adResponse, "data.data[0]");
+                  dapr.save();
                 } catch (error) {
                   console.error(error, "seding to db");
                 }
-                const populate = Object.assign(result, get(adResponse, "data.data[0]"));
+                const populate = Object.assign(result, get(adResponse, "data.data[0]"), { adId: response.id });
                 cb(null, populate);
               }).catch(error => {
                 cb(null, error);
