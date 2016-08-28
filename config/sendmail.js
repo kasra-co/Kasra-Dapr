@@ -14,7 +14,8 @@ const mailer = nodemailer.createTransport(sgTransport(options));
 
 export default function(date) {
   const mailOptions = {
-    to: sendToEmails,
+    to: sendToEmails.to,
+    cc: sendToEmails.cc,
     from: "dapr_reportr@kasra.co",
     subject: "Daily Dapr Report",
     text: `DAPR Report for ${date}`,

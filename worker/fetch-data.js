@@ -34,7 +34,7 @@ const ltfmt = moment().utcOffset(3);
 ltfmt.subtract(7, "d").set({hour: 23, minute: 59, second: 59, millisecond:0 });
 ltfmt.toISOString();
 const lt = ltfmt.format();
-console.log(gt, lt, moment(gt).utcOffset(3).format("YYYY-MM-DD"));
+console.log(gt, lt, moment().format());
 export default function() {
   mongoose.connect(mongoConnectionString);
   axios.get("https://kasra.co/api/v2/articles", {
