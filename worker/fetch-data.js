@@ -50,7 +50,7 @@ export default function() {
     }
   }).then(res => {
     console.log(res.data.length);
-    // pullStunts(res.data);
+    pullStunts(res.data);
   }).catch(error => {
     console.log(error, "error");
   });
