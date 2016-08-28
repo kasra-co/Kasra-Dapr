@@ -23,6 +23,7 @@
     "koa-router": "^5.4.0",
     "koa-static": "^2.0.0",
     "moment": "^2.14.1",
+    "moment-timezone": "^0.5.5",
     "mongoose": "^4.5.10",
     "nodemailer": "^2.5.0",
     "nodemailer-sendgrid-transport": "^0.2.0",
