@@ -9,6 +9,7 @@ import googleAnalyticData from "../kasra-website-ga.json";
 import { mapSeries, waterfall, mapLimit } from "async";
 import requestPage from "../config/paged";
 import sendMail from "../config/sendmail";
+import sendErrorMail from "../config/sendErrorMail";
 import CtrModel from "../model/ctr";
 import DaprModel from "../model/dapr";
 import mongoose from "mongoose";
@@ -35,6 +36,7 @@ const ltfmt = moment().utcOffset(3);
 ltfmt.subtract(7, "d").set({ hour: 23, minute: 59, second: 59, millisecond: 0 });
 ltfmt.toISOString();
 const lt = ltfmt.format();
+const date = moment(gt).utcOffset(3).format("YYYY-MM-DD");
 console.log(gt, lt, moment().format());
 export default function() {
   mongoose.connect(mongoConnectionString);
@@ -113,6 +115,7 @@ function queryData(analytics, articleData, callback) {
   }, function(err, response) {
     if (err) {
       console.log(err);
+      sendErrorMail(date, err);
       return;
     }
     console.log(JSON.stringify(response.totalsForAllResults["ga:pageviews"], null, 4), articleData.slug);
@@ -205,15 +208,15 @@ function pullStunts(articleData) {
                   let dapr = new DaprModel(result);
                   ctr.title = result.title;
                   ctr.slug = result.slug;
-                  ctr.inlineCtr = Object.assign(get(adResponse, "data.data[0]"), { ad_id: response.id });
+                  ctr.inlineCtr = Object.assign(get(adResponse, "data.data[0]") || "", { ad_id: response.id });
                   ctr.save();
                   dapr.author = result.author.displayName;
                   dapr.fbShares = result.share.share_count;
-                  dapr.gaViews = result["ga:pageviews"];
+                  dapr.gaViews = get(result, `["ga:pageviews"]`);
                   dapr.inlineCtr = get(adResponse, "data.data[0]");
                   dapr.save();
                 } catch (error) {
-                  console.error(error, "seding to db");
+                  console.error(error, "sending to db");
                 }
                 const populate = Object.assign(result, get(adResponse, "data.data[0]"), { adId: response.id });
                 cb(null, populate);
@@ -240,11 +243,10 @@ function pullStunts(articleData) {
       return 0;
     });
     const csvConvert = json2csv({ data: result, fields: fields, fieldNames: fieldNames });
-    const date = moment(gt).utcOffset(3).format("YYYY-MM-DD");
     fs.writeFile(`DAPR_${date}.csv`, csvConvert, function(err) {
       if (err) throw err;
       console.log("file saved");
-      sendMail(date);
+      // sendMail(date);
     });
     // result now equals "done"
   });
