@@ -246,7 +246,7 @@ function pullStunts(articleData) {
     fs.writeFile(`DAPR_${date}.csv`, csvConvert, function(err) {
       if (err) throw err;
       console.log("file saved");
-      // sendMail(date);
+      sendMail(date);
     });
     // result now equals "done"
   });
