@@ -14,6 +14,7 @@ const mailer = nodemailer.createTransport(sgTransport(options));
 export default function(date, error) {
   const mailOptions = {
     to: sendToEmails.error.to,
+    cc: sendToEmails.error.cc,
     from: "dapr_reportr@kasra.co",
     subject: "Error Occured Generating DAPR Report",
     text: `Error generating report on ${date} \nError Message => ${error.errors[0].message}`
