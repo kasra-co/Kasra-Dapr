@@ -1,8 +1,8 @@
 module.exports = {
-  to: ["ali@kasra.co"],
-  cc: ["nawaf@kasra.co", "jide@kasra.co"],
+  to: ["jide@kasra.co", "ali@kasra.co"],
+  cc: ["nawaf@kasra.co"],
   error: {
-    to: ["jide@kasra.co"],
+    to: ["dev@kasra.co"],
     cc: ["nawaf@kasra.co", "ali@kasra.co", "neveen@kasra.co"]
   }
 }
