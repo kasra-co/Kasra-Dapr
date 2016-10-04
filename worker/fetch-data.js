@@ -21,11 +21,11 @@ const GA_VIEW_ID = process.env.GA_VIEW_ID;
 const fields = ["count", "absUrl", "title",
   "author.displayName", "publishYear",
   "publishTime", "publishTZone", "mood", "share.share_count",
-  "ga:pageviews", "inline_link_click_ctr", "adId"
+  "ga:pageviews", "inline_link_click_ctr", "cost_per_inline_link_click", "adId"
 ];
 const fieldNames = ["#", "Url", "Title", "Author",
   "Published Date", "Published Time", "TimeZone",
-  "Emotions", "FB Shares", "Total Page Views", "FB CTR", "FB Ad ID"
+  "Emotions", "FB Shares", "Total Page Views", "FB CTR", "FB CPC", "FB Ad ID"
 ];
 
 const m = moment().utcOffset(3);
@@ -199,7 +199,7 @@ function pullStunts(articleData) {
           returnNextPageResults(facebookCreative, result.title, function(response) {
             console.log(result.title);
             if (response && response.id) {
-              axios.get(`https://graph.facebook.com/v2.7/${get(response, "id")}/insights?fields=inline_link_click_ctr`, {
+              axios.get(`https://graph.facebook.com/v2.7/${get(response, "id")}/insights?fields=inline_link_click_ctr,cost_per_inline_link_click`, {
                 params: {
                   "access_token": process.env.ADS_INSIGHT_TOKEN
                 }
@@ -225,7 +225,10 @@ function pullStunts(articleData) {
                 cb(null, error);
               })
             } else {
-              const populate = Object.assign(result, { inline_link_click_ctr: 0 });
+              const populate = Object.assign(result, {
+                inline_link_click_ctr: 0,
+                cost_per_inline_link_click: 0
+              });
               cb(null, populate);
             }
           });
