@@ -21,11 +21,11 @@ const GA_VIEW_ID = process.env.GA_VIEW_ID;
 const fields = ["count", "absUrl", "title",
   "author.displayName", "publishYear",
   "publishTime", "publishTZone", "mood", "share.share_count",
-  "ga:pageviews", "inline_link_click_ctr", "adId", "cost_per_inline_link_click"
+  "ga:pageviews", "inline_link_click_ctr", "adId", "cost_per_inline_link_click", "category"
 ];
 const fieldNames = ["#", "Url", "Title", "Author",
   "Published Date", "Published Time", "TimeZone",
-  "Emotions", "FB Shares", "Total Page Views", "FB CTR", "FB Ad ID", "FB CPC"
+  "Emotions", "FB Shares", "Total Page Views", "FB CTR", "FB Ad ID", "FB CPC", "Category"
 ];
 
 const m = moment().utcOffset(3);
@@ -144,6 +144,7 @@ function pullStunts(articleData) {
             result.absUrl = "https://kasra.co/" + result.shortUrl;
             result.publishYear = moment(result.publishDate).format("YYYY-MM-DD");
             result.publishTZone = "AST";
+            result.category = result.category;
             result.publishTime = moment(result.publishDate).utcOffset(0).format("HH:mm");
             result.count = ++count;
             const populate = Object.assign(result, response.body);
